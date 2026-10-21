@@ -39,8 +39,6 @@ jobs:
 
       - name: Build static site
         run: npm run build
-        env:
-          VITE_BASE_PATH: '/dev-portfolios/'
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
