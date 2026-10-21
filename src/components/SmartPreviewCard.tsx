@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { ExternalLink, Bookmark, Globe, Eye, Sparkles, AlertCircle } from 'lucide-react';
+import { ExternalLink, Bookmark, Eye, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Portfolio } from '../types/portfolio';
 import { useIframeQueueSlot } from '../hooks/useIframeQueue';
@@ -17,7 +17,7 @@ export const SmartPreviewCard: React.FC<SmartPreviewCardProps> = ({ portfolio, p
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeError, setIframeError] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
-  const [previewMode, setPreviewMode] = useState<'iframe' | 'monogram'>('iframe');
+  const [previewMode, setPreviewMode] = useState<'iframe' | 'card'>('iframe');
   
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -41,7 +41,6 @@ export const SmartPreviewCard: React.FC<SmartPreviewCardProps> = ({ portfolio, p
           if (entry.isIntersecting) {
             setIsVisible(true);
           } else {
-            // Unload when scrolled far out to conserve browser RAM
             setIsVisible(false);
           }
         });
@@ -56,8 +55,25 @@ export const SmartPreviewCard: React.FC<SmartPreviewCardProps> = ({ portfolio, p
     return () => observer.disconnect();
   }, []);
 
+  // If known to be blocked by X-Frame-Options or CSP, prevent iframe render
+  const isBlockedByOrigin = portfolio.frameBlocked === true;
+
   // Request a slot in the concurrent queue (max 5)
-  const canLoadIframe = useIframeQueueSlot(portfolio.id, isVisible);
+  const canLoadIframe = useIframeQueueSlot(portfolio.id, isVisible && !isBlockedByOrigin);
+
+  // If iframe takes more than 3.5s without loading, treat as blocked (X-Frame-Options/CSP)
+  // and smoothly fall back to the card with the person's name
+  useEffect(() => {
+    if (!isVisible || !canLoadIframe || iframeLoaded || isBlockedByOrigin) return;
+
+    const timer = setTimeout(() => {
+      if (!iframeLoaded) {
+        setIframeError(true);
+      }
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, [isVisible, canLoadIframe, iframeLoaded, isBlockedByOrigin]);
 
   // Handle bookmark click
   const handleBookmarkClick = (e: React.MouseEvent) => {
@@ -114,29 +130,34 @@ export const SmartPreviewCard: React.FC<SmartPreviewCardProps> = ({ portfolio, p
 
       {/* Main Preview Container */}
       <div className="relative aspect-[16/10] w-full bg-[#0a0d14] overflow-hidden">
-        {/* Fallback Monogram & Initials View */}
-        {(!canLoadIframe || iframeError || previewMode === 'monogram') && (
-          <div className={`absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br ${gradientClass} transition-opacity`}>
+        {/* Original Card Layout with Person's Name, Monogram Initials, Platform & Thumbnail Placeholder */}
+        {(!canLoadIframe || iframeError || previewMode === 'card') && (
+          <div className={`absolute inset-0 flex flex-col items-center justify-center p-5 bg-gradient-to-br ${gradientClass} transition-opacity`}>
             {/* Ambient pattern */}
             <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-40" />
 
-            <div className="relative z-10 flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-2xl bg-slate-900/90 border border-slate-700/60 shadow-xl flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+            <div className="relative z-10 flex flex-col items-center text-center w-full px-2">
+              {/* Monogram initials badge */}
+              <div className="w-14 h-14 rounded-2xl bg-slate-900/90 border border-slate-700/60 shadow-xl flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
                 <span className="text-xl font-bold tracking-wider font-mono text-indigo-400">
                   {initials}
                 </span>
               </div>
-              <h3 className="font-semibold text-slate-200 text-sm max-w-[200px] truncate">
+
+              {/* Name of Person prominently displayed */}
+              <h3 className="font-bold text-white text-base max-w-[210px] truncate tracking-tight drop-shadow-sm">
                 {portfolio.name}
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5 font-mono">
+
+              {/* Platform badge */}
+              <p className="text-[11px] text-slate-400 font-mono mt-0.5">
                 {portfolio.platform}
               </p>
 
-              {/* Requirement: Blank square space for YouTube video link or thumbnail showcase */}
+              {/* Blank square space for YouTube video link or thumbnail showcase (as mandated in RTF) */}
               <div
                 title="Thumbnail / Video Placeholder Space"
-                className="mt-3 w-7 h-7 rounded border border-dashed border-slate-700/80 bg-slate-800/40 flex items-center justify-center text-[9px] font-mono text-slate-500"
+                className="mt-2.5 w-6 h-6 rounded border border-dashed border-slate-700/80 bg-slate-800/40 flex items-center justify-center text-[8px] font-mono text-slate-500"
               >
                 ■
               </div>
@@ -144,12 +165,15 @@ export const SmartPreviewCard: React.FC<SmartPreviewCardProps> = ({ portfolio, p
           </div>
         )}
 
-        {/* Live Iframe Preview when allowed by Queue and in viewport */}
+        {/* Live Iframe Preview when allowed by Queue, in viewport, and not errored */}
         {isVisible && canLoadIframe && previewMode === 'iframe' && !iframeError && (
           <>
             {!iframeLoaded && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/95 z-10 space-y-2">
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/90 z-10 p-5 text-center space-y-2">
                 <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                <h3 className="font-bold text-slate-200 text-sm max-w-[200px] truncate">
+                  {portfolio.name}
+                </h3>
                 <span className="text-[11px] font-mono text-slate-400">Connecting preview...</span>
               </div>
             )}
@@ -160,7 +184,16 @@ export const SmartPreviewCard: React.FC<SmartPreviewCardProps> = ({ portfolio, p
               sandbox="allow-scripts allow-same-origin"
               onLoad={() => setIframeLoaded(true)}
               onError={() => setIframeError(true)}
-              className={`w-[200%] h-[200%] border-0 origin-top-left transform scale-50 pointer-events-none transition-opacity duration-500 ${
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '200%',
+                height: '200%',
+                transform: 'scale(0.5)',
+                transformOrigin: 'top left',
+              }}
+              className={`border-0 pointer-events-none transition-opacity duration-500 ${
                 iframeLoaded ? 'opacity-90 group-hover:opacity-100' : 'opacity-0'
               }`}
             />
@@ -180,7 +213,7 @@ export const SmartPreviewCard: React.FC<SmartPreviewCardProps> = ({ portfolio, p
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              setPreviewMode((prev) => (prev === 'iframe' ? 'monogram' : 'iframe'));
+              setPreviewMode((prev) => (prev === 'iframe' ? 'card' : 'iframe'));
             }}
             className="px-2 py-1 text-[10px] font-mono rounded bg-slate-950/80 hover:bg-slate-900 text-slate-300 border border-slate-700 backdrop-blur shadow flex items-center gap-1"
           >

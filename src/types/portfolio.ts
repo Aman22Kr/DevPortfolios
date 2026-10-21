@@ -10,6 +10,7 @@ export interface Portfolio {
   bio?: string;
   addedAt?: string;
   isCustom?: boolean;
+  frameBlocked?: boolean;
 }
 
 export type SortOption = 'name-asc' | 'name-desc' | 'random' | 'newest';

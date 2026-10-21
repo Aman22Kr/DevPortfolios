@@ -39,6 +39,21 @@ export const PortfolioDetailPage: React.FC = () => {
   const [bookmarked, setBookmarked] = useState(false);
   const [copied, setCopied] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [iframeError, setIframeError] = useState(false);
+
+  useEffect(() => {
+    setIframeLoaded(false);
+    if (portfolio?.frameBlocked) {
+      setIframeError(true);
+      return;
+    }
+    setIframeError(false);
+    const timer = setTimeout(() => {
+      setIframeError(true);
+    }, 3800);
+    return () => clearTimeout(timer);
+  }, [portfolio?.id, portfolio?.frameBlocked, iframeKey]);
 
   // Sync bookmarks and record recently viewed
   useEffect(() => {
@@ -277,14 +292,40 @@ export const PortfolioDetailPage: React.FC = () => {
 
         {/* Live Iframe or Security Fallback View */}
         <div className="bg-[#090b10] flex justify-center p-2 sm:p-6 min-h-[500px]">
-          <div className={`transition-all duration-300 rounded-xl overflow-hidden shadow-2xl border border-slate-800 bg-white ${deviceWidthClass}`}>
-            <iframe
-              key={iframeKey}
-              src={portfolio.url}
-              title={`Live view of ${portfolio.name}`}
-              className="w-full h-full border-0"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-            />
+          <div className={`transition-all duration-300 rounded-xl overflow-hidden shadow-2xl border border-slate-800 ${deviceWidthClass} ${iframeError ? 'bg-slate-950' : 'bg-white'}`}>
+            {iframeError ? (
+              <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center bg-gradient-to-br from-slate-900 via-[#0e131f] to-slate-950">
+                <span className="text-xs font-mono uppercase tracking-widest text-indigo-400 mb-2">
+                  Developer Portfolio
+                </span>
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight max-w-xl">
+                  {portfolio.name}
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-400 mt-2 max-w-md font-mono">
+                  {portfolio.domain}
+                </p>
+                <div className="w-12 h-0.5 bg-indigo-500/40 rounded-full my-4" />
+                <a
+                  href={portfolio.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/20 transition-all hover:scale-[1.02]"
+                >
+                  <span>Open Live Website</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+            ) : (
+              <iframe
+                key={iframeKey}
+                src={portfolio.url}
+                title={`Live view of ${portfolio.name}`}
+                className="w-full h-full border-0"
+                onLoad={() => setIframeLoaded(true)}
+                onError={() => setIframeError(true)}
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+              />
+            )}
           </div>
         </div>
 
