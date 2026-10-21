@@ -63,11 +63,6 @@ export const Footer: React.FC = () => {
                   Saved Bookmarks
                 </Link>
               </li>
-              <li>
-                <Link to="/submit" className="hover:text-indigo-400 transition-colors">
-                  Submit Your Portfolio
-                </Link>
-              </li>
             </ul>
           </div>
 

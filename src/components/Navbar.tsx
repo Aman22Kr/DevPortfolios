@@ -5,7 +5,6 @@ import {
   Layers,
   Search,
   Bookmark,
-  PlusCircle,
   Info,
   Mail,
   Github,
@@ -43,7 +42,6 @@ export const Navbar: React.FC = () => {
       icon: Bookmark,
       badge: bookmarkCount > 0 ? bookmarkCount : undefined,
     },
-    { label: 'Submit', path: '/submit', icon: PlusCircle },
     { label: 'About', path: '/about', icon: Info },
     { label: 'Contact', path: '/contact', icon: Mail },
   ];

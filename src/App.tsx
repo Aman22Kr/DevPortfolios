@@ -6,7 +6,6 @@ import { HomePage } from './pages/HomePage';
 import { PortfolioDetailPage } from './pages/PortfolioDetailPage';
 import { SearchPage } from './pages/SearchPage';
 import { BookmarksPage } from './pages/BookmarksPage';
-import { SubmitPage } from './pages/SubmitPage';
 import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -34,7 +33,6 @@ export default function App() {
             <Route path="/portfolio/:slug" element={<PortfolioDetailPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/bookmarks" element={<BookmarksPage />} />
-            <Route path="/submit" element={<SubmitPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="*" element={<NotFoundPage />} />

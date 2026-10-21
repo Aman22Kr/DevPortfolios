@@ -29,7 +29,7 @@ export const ContactPage: React.FC = () => {
   const faqs = [
     {
       q: 'How do I add or update my developer portfolio?',
-      a: 'Navigate to the Submit page to instantly register your personal portfolio in the directory. To update an existing listing, submit a report here with your updated URL.',
+      a: 'To request adding your portfolio or updating an existing listing, submit a message using the form above with your name and website URL.',
     },
     {
       q: 'Why do some portfolio previews show initials instead of a live website?',

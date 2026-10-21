@@ -22,7 +22,6 @@
   - Deep space aesthetic (`#080a0f`) with radial gradient ambient mesh, crisp borders, and subtle glassmorphic navigation.
 - **Client-Side Persistence (`localStorage`)**:
   - **Bookmarks / Favorites**: Save favorite portfolios across sessions with JSON export option.
-  - **Custom Portfolio Submissions**: Add your own portfolio via the Submit page with immediate persistence and live appearance in the catalog.
   - **Search History**: Instant recall of previous search terms.
   - **View Mode**: Switch between interactive Grid preview cards and compact streamlined list.
 - **Multi-Page Static Architecture**:
@@ -30,7 +29,6 @@
   - `/#/portfolio/:slug` - Individual portfolio detail view with responsive desktop/tablet/mobile device simulator frames, prev/next navigation, copy URL, and share.
   - `/#/search` - Dedicated full-text search with platform filtering.
   - `/#/bookmarks` - Saved portfolios with batch export and management.
-  - `/#/submit` - Form to submit new developer portfolios with instant client-side integration.
   - `/#/about` - Dataset origin, technical architecture, and maintainer credits.
   - `/#/contact` - Broken link reporting, update requests, and developer FAQ.
   - `/#/404` - Not Found fallback page.
