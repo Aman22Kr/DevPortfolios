@@ -1,0 +1,6 @@
+{
+  "name": "DevPortfolios - Explore 2,000+ Developer Portfolios",
+  "description": "Discover and browse over 2,000 curated developer portfolios with smart lazy-loaded live previews, A-Z letter filters, search, and bookmarks.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
